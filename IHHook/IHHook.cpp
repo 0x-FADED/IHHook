@@ -257,14 +257,7 @@ namespace IHHook {
 			}//
 		}// ChecKVersion
 
-		bool doHooks = isTargetExe;//tex not actually doing hooks if not target exe. in theory could fall back to signature scanning, however it takes a litteral minute for 100+ signatures to be found 
-		//plus if you did go that route you'd have to put it at an earlier blocking point (like off dllmain itself)
-		//since this function we're in is run by a thread so the exe will continue past the point we need our hooks up and running
-		//But heres a config option to test
-		if (config.forceUsePatterns) {
-			isTargetExe = false;//tex use sig scanning instead
-			doHooks = true;
-		}
+		bool doHooks = isTargetExe;//tex not actually doing hooks if not target exe.
 
 		if (doHooks) {//tex hook em up boys
 			Hooks_Lua::SetupLog();
@@ -735,7 +728,6 @@ namespace IHHook {
 		config.enableCityHook = false;
 		config.enableFnvHook = false;
 		config.logFileLoad = false;
-		config.forceUsePatterns = false;
 		config.logFoxStringCreateInPlace = false; //ZIP: Fox hooks
 
 		std::string line;
@@ -805,9 +797,6 @@ namespace IHHook {
 			}
 			else if (varName == "logFileLoad") {
 				config.logFileLoad = valueStr == "true";
-			}
-			else if (varName == "forceUsePatterns") {
-				config.forceUsePatterns = valueStr == "true";
 			}
 			else if (varName == "logFoxStringCreateInPlace") { //ZIP: Fox hooks
 				config.logFoxStringCreateInPlace = valueStr == "true";

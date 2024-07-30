@@ -59,7 +59,6 @@ namespace IHHook {
 		bool enableCityHook{ false };
 		bool enableFnvHook{ false };
 		bool logFileLoad{ false };
-		bool forceUsePatterns{ false };
 		bool logFoxStringCreateInPlace{ false }; //ZIP: Fox hooks
 	};
 	extern struct Config config;
