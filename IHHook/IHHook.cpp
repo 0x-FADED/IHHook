@@ -38,7 +38,6 @@
 
 #include "hooks/mgsvtpp_adresses_1_0_15_3_en.h"
 #include "hooks/mgsvtpp_adresses_1_0_15_3_jp.h"
-#include "hooks/mgsvtpp_patterns.h"
 
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);//tex see note in imgui_impl_win32.h
@@ -62,7 +61,6 @@ namespace IHHook {
 	size_t RealBaseAddr;
 	bool isTargetExe = false;
 	std::map<std::string, int64_t> addressSet{};
-	std::map<std::string, char*> patterns{};
 
 	terminate_function terminate_Original;
 
@@ -834,34 +832,7 @@ namespace IHHook {
 				addressSet[name] = rebasedAddr;
 			}
 			else {
-				//tex fall back to sig scan
-				spdlog::info("!isTargetExe, sig scanning");
-				addressSet[name] = 0;
-				auto it = mgsvtpp_patterns.find(name);
-				if (it != mgsvtpp_patterns.end()) {
-					//found
-					//const char* sig = it->second;
-					//const char* mask = mgsvtpp_masks[name];//ASSUMPTION: if sig exists then mask does
-					//uintptr_t addr = MemoryUtils::sigscan(name.c_str(), sig, mask);//tex returns null if not found
-
-					const char* pattern = it->second.c_str();
-					auto tstart = std::chrono::high_resolution_clock::now();
-					uintptr_t addr = (uintptr_t)MemoryUtils::PatternScan(pattern);//tex returns null if not found
-					auto tend = std::chrono::high_resolution_clock::now();
-					auto duration = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
-					if (addr == NULL) {
-						spdlog::debug("sigscan not found {} in(microseconds): {}", name, duration);
-						foundAllAddresses = false;
-					}
-					else {
-						spdlog::debug("sigscan found {} at 0x{:x} in(microseconds): {}", name, addr, duration);//DEBUGNOW dump addr
-					}
-
-					addressSet[name] = addr;
-				}
-				else {
-					spdlog::warn("Could not find sig for {}", name);
-				}
+				spdlog::error("executable mismatch!");
 			}//if isTargetExe
 		}//for addressSet
 		return foundAllAddresses;

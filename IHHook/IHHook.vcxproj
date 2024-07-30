@@ -24,19 +24,19 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>IHHook</RootNamespace>
     <ProjectName>IHHook</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -44,12 +44,12 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -79,6 +79,7 @@
     <LinkIncremental>true</LinkIncremental>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -164,13 +165,11 @@ copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite\Readme.txt"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="D3D11Hook.hpp" />
-    <ClInclude Include="Hooking.Patterns\Hooking.Patterns.h" />
     <ClInclude Include="HookMacros.h" />
     <ClInclude Include="hooks\mgsvtpp_adresses_1_0_15_3_en.h" />
     <ClInclude Include="hooks\mgsvtpp_adresses_1_0_15_3_jp.h" />
     <ClInclude Include="hooks\mgsvtpp_func_typedefs.h" />
     <ClInclude Include="hooks\mgsvtpp_func_typedefs_manual.h" />
-    <ClInclude Include="hooks\mgsvtpp_patterns.h" />
     <ClInclude Include="Hooks_Buddy.h" />
     <ClInclude Include="Hooks_Character.h" />
     <ClInclude Include="Hooks_CityHash.h" />
@@ -195,7 +194,6 @@ copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite\Readme.txt"</Command>
     <ClInclude Include="lua\lua.h" />
     <ClInclude Include="lua\luaconf.h" />
     <ClInclude Include="lua\lualib.h" />
-    <ClInclude Include="MemoryUtils.h" />
     <ClInclude Include="MinHook\buffer.h" />
     <ClInclude Include="MinHook\hde\hde32.h" />
     <ClInclude Include="MinHook\hde\hde64.h" />
@@ -204,7 +202,6 @@ copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite\Readme.txt"</Command>
     <ClInclude Include="MinHook\hde\table64.h" />
     <ClInclude Include="MinHook\MinHook.h" />
     <ClInclude Include="MinHook\trampoline.h" />
-    <ClInclude Include="ntdll.h" />
     <ClInclude Include="OS.h" />
     <ClInclude Include="PipeServer.h" />
     <ClInclude Include="RawInput.h" />
@@ -223,7 +220,6 @@ copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite\Readme.txt"</Command>
   <ItemGroup>
     <ClCompile Include="D3D11Hook.cpp" />
     <ClCompile Include="DInputProxy.cpp" />
-    <ClCompile Include="Hooking.Patterns\Hooking.Patterns.cpp" />
     <ClCompile Include="hooks\mgsvtpp_funcptr_defs.cpp" />
     <ClCompile Include="hooks\mgsvtpp_funcptr_set.cpp" />
     <ClCompile Include="Hooks_Buddy.cpp" />
@@ -266,7 +262,6 @@ copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite\Readme.txt"</Command>
     <ClCompile Include="lua\ldo.cpp" />
     <ClCompile Include="lua\lobject.cpp" />
     <ClCompile Include="lua\ltm.cpp" />
-    <ClCompile Include="MemoryUtils.cpp" />
     <ClCompile Include="MinHook\buffer.c" />
     <ClCompile Include="MinHook\hde\hde32.c" />
     <ClCompile Include="MinHook\hde\hde64.c" />

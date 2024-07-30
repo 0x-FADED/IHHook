@@ -1,10 +1,7 @@
 #pragma once
 
 #include "MinHook.h"
-#include "MemoryUtils.h"
 #include <map>
-
-#include "Hooking.Patterns/Hooking.Patterns.h"//DEBUGNOW
 
 #include "spdlog/spdlog.h"
 

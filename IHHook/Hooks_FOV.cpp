@@ -15,8 +15,6 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
-#include <MemoryUtils.h>
-
 #include "IHHook.h"//DEBUGNOW
 #include "hooks/mgsvtpp_func_typedefs.h"
 
