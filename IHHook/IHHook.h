@@ -143,6 +143,7 @@ namespace IHHook {
 		void OnReset();
 
 		bool OnMessage(HWND wnd, UINT message, WPARAM w_param, LPARAM l_param);
+		static bool isD3D11Loaded;
 	private:
 		void SetupLog();
 		std::string GetLangVersion();

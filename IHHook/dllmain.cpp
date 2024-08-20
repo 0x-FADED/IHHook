@@ -12,7 +12,12 @@ HMODULE g_thisModule;
 extern HMODULE origDll;//dinputproxy
 
 DWORD WINAPI InitThread(LPVOID lpParameter) {
+
+	if (g_ihhook->isD3D11Loaded == true){
+
 	g_ihhook->Initialize();
+	
+	}
 
 	return 0;
 }//InitThread

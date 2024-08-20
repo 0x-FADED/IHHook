@@ -131,6 +131,36 @@ namespace IHHook {
 		}
 	}//InitCursorHook
 
+	typedef HMODULE(WINAPI* LoadLibraryAFn)(LPCSTR);
+LoadLibraryAFn g_LoadLibraryA = NULL;
+
+bool IHH::isD3D11Loaded = false;
+HMODULE WINAPI LoadLibraryA_Hook(LPCSTR lpFileName) 
+{ 
+    if (strcmp(lpFileName, "ole32.dll") == 0) //at this point d3d11.dll is loaded by the game
+    {
+        spdlog::info("LoadLibraryA_Hook: {:} is loaded", lpFileName);
+        g_ihhook->isD3D11Loaded = true;
+    }
+
+    return g_LoadLibraryA(lpFileName); 
+}
+
+void InitLoadLibraryAHook()
+{ 
+   auto log = spdlog::get("ihhook");
+
+   if (MH_CreateHook(&LoadLibraryA, &LoadLibraryA_Hook, reinterpret_cast<LPVOID*>(&g_LoadLibraryA)) != MH_OK)
+   {
+       log->error("Couldn't create hook for LoadLibraryA.");
+   }
+
+   if (MH_EnableHook(&LoadLibraryA) != MH_OK)
+   {
+       log->error("Couldn't enable LoadLibraryA hook.");
+   }
+}
+
 	void Shutdown() {
 		spdlog::debug("IHHook DLL_PROCESS_DETACH");
 		doShutDown = true;
@@ -303,7 +333,7 @@ namespace IHHook {
 
 			auto tend = std::chrono::high_resolution_clock::now();
 			auto durationShort = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
-			spdlog::debug("IHHook::CreateHooks total time(microseconds): {}µs", durationShort);
+			spdlog::debug("IHHook::CreateHooks total time(microseconds): {}ï¿½s", durationShort);
 		}//if doHooks
 
 		PipeServer::StartPipeServer();
@@ -868,6 +898,7 @@ namespace IHHook {
 	}//RebaseAddresses
 
 	void IHH::CreateAllHooks() {
+		InitLoadLibraryAHook();
 		Hooks_CityHash::CreateHooks(RealBaseAddr);//TODO: rebase/convert to same style as rest, so don't have to pass in realbaseaddr
 		Hooks_FNVHash::CreateHooks();
 		Hooks_Lua::CreateHooks();
