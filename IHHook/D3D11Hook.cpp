@@ -1,28 +1,31 @@
-//D3D11Hook.cpp - from RE2Framework
-//Hooks by creating a dummy device and swapchain to get the addresses of present and resizebuffers from the swapchains dummy swapchain's virtual method table
+// D3D11Hook.cpp - from RE2Framework
+// Hooks by creating a dummy device and swapchain to get the addresses of
+// present and resizebuffers from the swapchains dummy swapchain's virtual
+// method table
 #include <algorithm>
+
 #include <spdlog/spdlog.h>
 
 #include "D3D11Hook.hpp"
 
-using namespace std;
 
-static D3D11Hook* g_d3d11_hook = nullptr;
+D3D11Hook* D3D11Hook::g_d3d11_hook = nullptr;
 
-D3D11Hook::~D3D11Hook() {
-    unhook();
-}
+D3D11Hook::~D3D11Hook() { unhook(); }
 
-bool D3D11Hook::hook() {
-    spdlog::info("Hooking D3D11");
-
+bool D3D11Hook::hook()
+{
     auto pD3D11CreateDeviceAndSwapChain = (decltype(&::D3D11CreateDeviceAndSwapChain)) GetProcAddress(GetModuleHandleW(L"d3d11.dll"), "D3D11CreateDeviceAndSwapChain");
 
-    if (pD3D11CreateDeviceAndSwapChain == nullptr){
+    if (pD3D11CreateDeviceAndSwapChain == nullptr)
+    {
         spdlog::error("d3d11.dll is not loaded can't hook d3d11 functions");
 
         return m_hooked = false;
     }
+
+    spdlog::info("Hooking D3D11");
+
     g_d3d11_hook = this;
 
     HWND h_wnd = GetDesktopWindow();
@@ -46,12 +49,13 @@ bool D3D11Hook::hook() {
     swap_chain_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
     swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
     spdlog::info("Creating dummy D3D11 device.");
-    HRESULT hr = pD3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_NULL, nullptr, 0, feature_level, 1, D3D11_SDK_VERSION, &swap_chain_desc, &swap_chain, &device, &device_max_feature_level, &context);
-    if (FAILED(hr)) {  
-        spdlog::error("Failed to create dummy D3D11 device. HRESULT={0:x} max_feature={1:x}", hr, device_max_feature_level);
+    HRESULT hr = pD3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_NULL, nullptr, 0, feature_level, 2, D3D11_SDK_VERSION, &swap_chain_desc, &swap_chain, &device, &device_max_feature_level, &context);
+    if (FAILED(hr))
+    {
+        spdlog::error("Failed to create dummy D3D11 device. HRESULT={0:#x} max_feature={1:#x}", hr, device_max_feature_level);
         return false;
     }
-    spdlog::info("Created dummy D3D11 device. HRESULT={0:x} max_feature={1:x}", hr, device_max_feature_level);
+    spdlog::info("Created dummy D3D11 device. HRESULT={0:#x} max_feature={1:#x}", hr, device_max_feature_level);
 
     auto present_fn = (*(uintptr_t**)swap_chain)[8];
     auto resize_buffers_fn = (*(uintptr_t**)swap_chain)[13];
@@ -68,17 +72,33 @@ bool D3D11Hook::hook() {
     return m_hooked;
 }
 
-bool D3D11Hook::unhook() {
-    return true;
+bool D3D11Hook::unhook()
+{
+    if (!m_hooked)
+    {
+        return true;
+    }
+
+    spdlog::info("Unhooking D3D11");
+
+    if (m_present_hook->remove() && m_resize_buffers_hook->remove())
+    {
+        m_hooked = false;
+        return true;
+    }
+
+    return false;
 }
 
-HRESULT WINAPI D3D11Hook::present(IDXGISwapChain* swap_chain, UINT sync_interval, UINT flags) {
+HRESULT WINAPI D3D11Hook::present(IDXGISwapChain* swap_chain, UINT sync_interval, UINT flags)
+{
     auto d3d11 = g_d3d11_hook;
 
     d3d11->m_swap_chain = swap_chain;
     swap_chain->GetDevice(__uuidof(d3d11->m_device), (void**)&d3d11->m_device);
 
-    if (d3d11->m_on_present) {
+    if (d3d11->m_on_present)
+    {
         d3d11->m_on_present(*d3d11);
     }
 
@@ -87,10 +107,12 @@ HRESULT WINAPI D3D11Hook::present(IDXGISwapChain* swap_chain, UINT sync_interval
     return present_fn(swap_chain, sync_interval, flags);
 }
 
-HRESULT WINAPI D3D11Hook::resize_buffers(IDXGISwapChain* swap_chain, UINT buffer_count, UINT width, UINT height, DXGI_FORMAT new_format, UINT swap_chain_flags) {
+HRESULT WINAPI D3D11Hook::resize_buffers(IDXGISwapChain* swap_chain, UINT buffer_count, UINT width, UINT height, DXGI_FORMAT new_format, UINT swap_chain_flags)
+{
     auto d3d11 = g_d3d11_hook;
 
-    if (d3d11->m_on_resize_buffers) {
+    if (d3d11->m_on_resize_buffers)
+    {
         d3d11->m_on_resize_buffers(*d3d11);
     }
 

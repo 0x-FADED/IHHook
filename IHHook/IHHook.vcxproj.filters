@@ -43,9 +43,6 @@
     <Filter Include="Header Files\imgui">
       <UniqueIdentifier>{87b329e2-ba64-4502-9c81-b3fdfdce40e6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Hooking.Patterns">
-      <UniqueIdentifier>{baa6b5c2-e13a-46a0-b92f-60d9ddee4702}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\hooks">
       <UniqueIdentifier>{de7d084a-b20f-4231-b467-0fed5a59a4d7}</UniqueIdentifier>
     </Filter>
@@ -132,9 +129,6 @@
     <ClInclude Include="windowsapi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MemoryUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="utility\FunctionHook.hpp">
       <Filter>Source Files\utility</Filter>
     </ClInclude>
@@ -183,19 +177,10 @@
     <ClInclude Include="Hooks_FOV.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ntdll.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Hooking.Patterns\Hooking.Patterns.h">
-      <Filter>Source Files\Hooking.Patterns</Filter>
-    </ClInclude>
     <ClInclude Include="Hooks_FNVHash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hooks\mgsvtpp_patterns.h">
-      <Filter>Header Files\hooks</Filter>
-    </ClInclude>
-    <ClInclude Include="hooks\mgsvtpp_adresses_1_0_15_3_en.h">
+    <ClInclude Include="hooks\mgsvtpp_adresses_1_0_15_0_en.h">
       <Filter>Header Files\hooks</Filter>
     </ClInclude>
     <ClInclude Include="hooks\mgsvtpp_adresses_1_0_15_3_jp.h">
@@ -290,9 +275,6 @@
     <ClCompile Include="LuaIHH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MemoryUtils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utility\FunctionHook.cpp">
       <Filter>Source Files\utility</Filter>
     </ClCompile>
@@ -344,9 +326,6 @@
     <ClCompile Include="lua\ldebug.cpp">
       <Filter>Source Files\lua</Filter>
     </ClCompile>
-    <ClCompile Include="Hooking.Patterns\Hooking.Patterns.cpp">
-      <Filter>Source Files\Hooking.Patterns</Filter>
-    </ClCompile>
     <ClCompile Include="Hooks_FNVHash.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -370,6 +349,9 @@
     </ClCompile>
     <ClCompile Include="Hooks_FoxString.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_tables.cpp">
+      <Filter>Source Files\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

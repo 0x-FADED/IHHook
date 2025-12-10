@@ -5,8 +5,9 @@
 
 #include "Address.hpp"
 
-class FunctionHook {
-public:
+class FunctionHook
+{
+  public:
     FunctionHook() = delete;
     FunctionHook(const FunctionHook& other) = delete;
     FunctionHook(FunctionHook&& other) = delete;
@@ -19,24 +20,17 @@ public:
     // if you need to remove the hook.
     bool remove();
 
-    auto get_original() const {
-        return m_original;
-    }
+    auto get_original() const { return m_original; }
 
-    template <typename T>
-    T* get_original() const {
-        return (T*)m_original;
-    }
+    template <typename T> T* get_original() const { return (T*) m_original; }
 
-    auto is_valid() const {
-        return m_original != 0;
-    }
+    auto is_valid() const { return m_original != 0; }
 
     FunctionHook& operator=(const FunctionHook& other) = delete;
     FunctionHook& operator=(FunctionHook&& other) = delete;
 
-private:
-    uintptr_t m_target{ 0 };
-    uintptr_t m_destination{ 0 };
-    uintptr_t m_original{ 0 };
+  private:
+    uintptr_t m_target{0};
+    uintptr_t m_destination{0};
+    uintptr_t m_original{0};
 };

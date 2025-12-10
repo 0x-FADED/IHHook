@@ -1,14 +1,17 @@
-//WindowsMessageHook.hpp - from RE2Framework
+// WindowsMessageHook.hpp - from RE2Framework
 #pragma once
 
 #include <functional>
 
 #include <Windows.h>
 
-// This type of hook replaces a windows message procedure so that it can intercept
-// messages sent to the window.
-class WindowsMessageHook {
-public:
+#include "..\unordered_dense\unordered_dense.h"
+
+// This type of hook replaces a windows message procedure so that it can
+// intercept messages sent to the window.
+class WindowsMessageHook
+{
+  public:
     std::function<bool(HWND, UINT, WPARAM, LPARAM)> on_message;
 
     WindowsMessageHook() = delete;
@@ -21,18 +24,22 @@ public:
     // explicitly if you need to remove the message hook for some reason.
     bool remove();
 
-    auto is_valid() const {
-        return m_original_proc != nullptr;
-    }
+    auto is_valid() const { return m_original_proc != nullptr; }
 
-    auto get_original() const {
-        return m_original_proc;
-    }
+    auto get_original() const { return m_original_proc; }
 
     WindowsMessageHook& operator=(const WindowsMessageHook& other) = delete;
     WindowsMessageHook& operator=(const WindowsMessageHook&& other) = delete;
 
-private:
+  private:
+    static LRESULT WINAPI window_proc(HWND wnd, UINT message, WPARAM w_param, LPARAM l_param);
+    static void SuspendAllThreadsButCurrent();
+    static void ResumeSuspendedThreads();
+
+    static ankerl::unordered_dense::segmented_set<HANDLE>* g_SuspendedThreads;
+    static WindowsMessageHook* g_windows_message_hook;
+    static std::recursive_mutex g_proc_mutex;
+
     HWND m_wnd;
     WNDPROC m_original_proc;
 };

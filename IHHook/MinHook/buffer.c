@@ -90,11 +90,7 @@ static LPVOID FindPrevFreeRegion(LPVOID pAddress, LPVOID pMinAddr, DWORD dwAlloc
 {
     ULONG_PTR tryAddr = (ULONG_PTR)pAddress;
 
-    // Round down to the allocation granularity.
-    tryAddr -= tryAddr % dwAllocationGranularity;
-
-    // Start from the previous allocation granularity multiply.
-    tryAddr -= dwAllocationGranularity;
+    tryAddr = (tryAddr & ~(dwAllocationGranularity - 1)) - dwAllocationGranularity;
 
     while (tryAddr >= (ULONG_PTR)pMinAddr)
     {
@@ -120,12 +116,10 @@ static LPVOID FindPrevFreeRegion(LPVOID pAddress, LPVOID pMinAddr, DWORD dwAlloc
 static LPVOID FindNextFreeRegion(LPVOID pAddress, LPVOID pMaxAddr, DWORD dwAllocationGranularity)
 {
     ULONG_PTR tryAddr = (ULONG_PTR)pAddress;
-
-    // Round down to the allocation granularity.
-    tryAddr -= tryAddr % dwAllocationGranularity;
-
-    // Start from the next allocation granularity multiply.
-    tryAddr += dwAllocationGranularity;
+    
+    ULONG_PTR granularityMask = dwAllocationGranularity - 1;
+    
+    tryAddr = (tryAddr & ~granularityMask) + dwAllocationGranularity;
 
     while (tryAddr <= (ULONG_PTR)pMaxAddr)
     {
@@ -138,9 +132,8 @@ static LPVOID FindNextFreeRegion(LPVOID pAddress, LPVOID pMaxAddr, DWORD dwAlloc
 
         tryAddr = (ULONG_PTR)mbi.BaseAddress + mbi.RegionSize;
 
-        // Round up to the next allocation granularity.
-        tryAddr += dwAllocationGranularity - 1;
-        tryAddr -= tryAddr % dwAllocationGranularity;
+        // Round up to next allocation granularity
+        tryAddr = (tryAddr + granularityMask) & ~granularityMask;
     }
 
     return NULL;
@@ -276,7 +269,7 @@ VOID FreeBuffer(LPVOID pBuffer)
             PMEMORY_SLOT pSlot = (PMEMORY_SLOT)pBuffer;
 #ifdef _DEBUG
             // Clear the released slot for debugging.
-            memset(pSlot, 0x00, sizeof(*pSlot));
+            memset(pSlot, 0x00, sizeof(MEMORY_SLOT));
 #endif
             // Restore the released slot to the list.
             pSlot->pNext = pBlock->pFree;
