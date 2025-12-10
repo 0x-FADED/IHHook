@@ -1,0 +1,36 @@
+BasedOnStyle: Microsoft
+
+# Indentation
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# Line length
+ColumnLimit: 1000
+
+# Allman style braces
+BreakBeforeBraces: Allman
+
+# Short constructs on one line
+AllowShortFunctionsOnASingleLine: All
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: true
+
+# Constructor initializer formatting
+BreakConstructorInitializersBeforeComma: true
+
+# Block behavior
+KeepEmptyLinesAtTheStartOfBlocks: false
+
+# Spacing rules
+SpaceAfterCStyleCast: true
+SpaceBeforeParens: ControlStatements
+SpacesBeforeTrailingComments: 1
+
+# Pointer style
+PointerAlignment: Left
+DerivePointerAlignment: false
+
+# Operator and call formatting
+BreakBeforeBinaryOperators: NonAssignment
+PenaltyBreakBeforeFirstCallParameter: 0
