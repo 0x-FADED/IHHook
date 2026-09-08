@@ -3,6 +3,7 @@
 #include "windowsapi.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <filesystem>
 
 #include "spdlog/spdlog.h"
 
@@ -31,42 +32,50 @@ HMODULE origDll = NULL;
 
 bool LoadProxiedDll()
 {
-	if (origLoaded)
-		return true;
+    if (origLoaded)
+        return true;
 
-	// get the filename of our DLL and try loading the DLL with the same name from system32
-	WCHAR modulePath[MAX_PATH] = { 0 };
-	if (!GetSystemDirectoryW(modulePath, _countof(modulePath))) {
-		spdlog::error("GetSystemDirectoryW fail");
-		return false;
-	}
+    namespace fs = std::filesystem;
 
-	// get filename of this DLL, which should be the original DLLs filename too
-	WCHAR ourModulePath[MAX_PATH] = { 0 };
-	GetModuleFileNameW(g_thisModule, ourModulePath, _countof(ourModulePath));
+    // System directory (e.g. C:\Windows\System32)
+    WCHAR systemDirBuf[MAX_PATH]{};
+    if (!GetSystemDirectoryW(systemDirBuf, _countof(systemDirBuf)))
+    {
+        spdlog::error("GetSystemDirectoryW failed");
+        return false;
+    }
+    const fs::path systemDir = systemDirBuf;
 
-	WCHAR exeName[MAX_PATH] = { 0 };
-	WCHAR extName[MAX_PATH] = { 0 };
-	_wsplitpath_s(ourModulePath, NULL, NULL, NULL, NULL, exeName, MAX_PATH, extName, MAX_PATH);
+    // Full path of this (proxy) DLL
+    WCHAR ourModulePathBuf[MAX_PATH]{};
+    if (!GetModuleFileNameW(g_thisModule, ourModulePathBuf, _countof(ourModulePathBuf)))
+    {
+        spdlog::error("GetModuleFileNameW failed");
+        return false;
+    }
+    const fs::path ourModulePath = ourModulePathBuf;
 
-	swprintf_s(modulePath, MAX_PATH, L"%ws\\%ws%ws", modulePath, exeName, extName);
+    // Same filename as the original system DLL
+    const fs::path modulePath = systemDir / ourModulePath.filename();
 
-	spdlog::debug("modulePath:");
-	spdlog::debug(modulePath);
-	origDll = LoadLibraryW(modulePath);
-	if (!origDll) {
-		spdlog::error("Could not load original module");
-		return false;
-	}
+    spdlog::debug("Loading original module from: {}", modulePath.string());
 
-	DirectInput8Create_Orig = (DirectInput8Create_ptr)GetProcAddress(origDll, "DirectInput8Create");
-	DllCanUnloadNow_Orig = GetProcAddress(origDll, "DllCanUnloadNow");
-	DllGetClassObject_Orig = GetProcAddress(origDll, "DllGetClassObject");
-	DllRegisterServer_Orig = GetProcAddress(origDll, "DllRegisterServer");
-	DllUnregisterServer_Orig = GetProcAddress(origDll, "DllUnregisterServer");
+    origDll = LoadLibraryW(modulePath.c_str());
+    if (!origDll)
+    {
+        spdlog::error("Could not load original module (error {})", GetLastError());
+        return false;
+    }
 
-	origLoaded = true;
-	return true;
+    // Resolve the exports we proxy
+    DirectInput8Create_Orig = reinterpret_cast<DirectInput8Create_ptr>(GetProcAddress(origDll, "DirectInput8Create"));
+    DllCanUnloadNow_Orig     = GetProcAddress(origDll, "DllCanUnloadNow");
+    DllGetClassObject_Orig   = GetProcAddress(origDll, "DllGetClassObject");
+    DllRegisterServer_Orig   = GetProcAddress(origDll, "DllRegisterServer");
+    DllUnregisterServer_Orig = GetProcAddress(origDll, "DllUnregisterServer");
+
+    origLoaded = true;
+    return true;
 }
 
 extern "C" __declspec(dllexport) HRESULT DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut, void* punkOuter)
