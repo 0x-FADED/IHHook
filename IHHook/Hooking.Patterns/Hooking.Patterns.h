@@ -222,6 +222,19 @@ template <typename T, typename TAddr> inline T get_address(TAddr address)
     return (T) target;
 }
 
+template<typename T, size_t Bytes, typename AddressType>
+inline void patch(AddressType address, const T(&patch)[Bytes])
+{
+    DWORD oldProtect;
+    VirtualProtect(reinterpret_cast<void*>(address), std::size(patch), PAGE_EXECUTE_READWRITE, &oldProtect);
+
+    std::memcpy(reinterpret_cast<void*>(address), patch, std::size(patch));
+
+    VirtualProtect(reinterpret_cast<void*>(address), std::size(patch), oldProtect, &oldProtect);
+
+    FlushInstructionCache(GetCurrentProcess(), reinterpret_cast<void*>(address), std::size(patch));
+}
+
 inline auto module_pattern(void* module, std::string_view bytes) { return make_module_pattern(module, std::move(bytes)); }
 
 inline auto range_pattern(uintptr_t begin, uintptr_t end, std::string_view bytes) { return make_range_pattern(begin, end, std::move(bytes)); }
