@@ -28,9 +28,12 @@ FARPROC GetdfDIJoystick_Orig;
 extern HMODULE g_thisModule;
 bool origLoaded = false;
 HMODULE origDll = NULL;
+static std::mutex g_proxy_mutex{};
 
 bool LoadProxiedDll()
 {
+	std::scoped_lock lock { g_proxy_mutex };
+	
 	if (origLoaded)
 		return true;
 
