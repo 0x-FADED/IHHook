@@ -63,7 +63,12 @@ bool WindowsMessageHook::remove() {
     }
 
     // Restore the original window procedure.
-    SetWindowLongPtr(m_wnd, GWLP_WNDPROC, (LONG_PTR)m_original_proc);
+    auto current_proc = (WNDPROC)GetWindowLongPtr(m_wnd, GWLP_WNDPROC);
+
+    // lets not try to restore the original window procedure if it's not ours.
+    if (current_proc == &window_proc) {
+        SetWindowLongPtr(m_wnd, GWLP_WNDPROC, (LONG_PTR)m_original_proc);
+    }
 
     // Invalidate this message hook.
     m_wnd = nullptr;

@@ -40,7 +40,7 @@ namespace IHHook {
 		//not much point hooking it or actual main (lets call it FoxMain to be clearer) at the moment since IHHook is currently a dinput8 proxy which is obviously well past the _crtMain/FoxMain execute point
 
 
-		uintptr_t missionCode_Addr = 0x142A58A00;
+		//uintptr_t missionCode_Addr = 0x142A58A00;
 		//uint32_t* missionCode;//tex in header
 
 		//TODO: move to exploration

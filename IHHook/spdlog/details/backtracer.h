@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "spdlog/details/log_msg_buffer.h"
-#include "spdlog/details/circular_q.h"
+#include <spdlog/details/log_msg_buffer.h>
+#include <spdlog/details/circular_q.h>
 
 #include <atomic>
 #include <mutex>
@@ -15,7 +15,7 @@
 
 namespace spdlog {
 namespace details {
-class backtracer
+class SPDLOG_API backtracer
 {
     mutable std::mutex mutex_;
     std::atomic<bool> enabled_{false};
