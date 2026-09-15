@@ -34,8 +34,12 @@ static void initialize()
 			peb->NtGlobalFlag &= ~0x70;
 
 			//dx11 anti-anti-hook
-            constexpr const uint8_t bytes[]{ 0xEB, 0x2D };
-            hook::patch(hook::get_pattern<uint8_t>("75 2D FF 15 ? ? ? ? 49 8B 14 FF"), bytes);
+        constexpr const uint8_t bytes[]{ 0xEB, 0x2D };
+        auto addr = hook::get_pattern<uint8_t>("75 2D FF 15 ? ? ? ? 49 8B 14 FF");
+        if(*addr == 0x75)
+        {
+            hook::patch(addr, bytes);
+        }
         
     };
 
@@ -48,7 +52,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 {
     if (ul_reason_for_call == DLL_PROCESS_ATTACH)
     {
-        DisableThreadLibraryCalls(hModule);
+        //DisableThreadLibraryCalls(hModule);
 
         g_thisModule = hModule;
 
