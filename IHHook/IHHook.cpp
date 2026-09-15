@@ -62,7 +62,6 @@ namespace IHHook {
 
 	std::vector<std::string> errorMessages{};
 
-	size_t RealBaseAddr;
 	bool isTargetExe = false;
 	std::unordered_map<std::string, uint64_t> addressSet{};
 	std::unordered_map<std::string, char*> patterns{};
@@ -143,9 +142,9 @@ namespace IHHook {
 
 	//GOTCHA: only set up stuff that can be done in this point of fox engine execution (when it's loading this dinput8.dll proxy)
 	//see Initialize for stuff after
+
 	IHH::IHH()
 		: thisModule{ GetModuleHandle(0) } {
-		RealBaseAddr = (size_t)GetModuleHandle(NULL);
 
 		signal(SIGABRT, &AbortHandler);//tex signal handler for SIGABRT which is thrown by abort()
 		terminate_Original = set_terminate(TerminateHandler);
@@ -183,9 +182,8 @@ namespace IHHook {
 		SetupLog();
 
 		//tex DEBUGNOW mgo is a seperate exe in the same dir, so bail out on exe name
-		HMODULE hExe = GetModuleHandle(NULL);
 		WCHAR fullPath[MAX_PATH]{ 0 };
-		GetModuleFileNameW(hExe, fullPath, MAX_PATH);
+		GetModuleFileNameW(thisModule, fullPath, MAX_PATH);
 		std::filesystem::path path(fullPath);
 		std::wstring exeName = path.filename().c_str();
 		if (exeName.find(L"mgo")!= std::wstring::npos) {
@@ -205,68 +203,57 @@ namespace IHHook {
 		if (!std::filesystem::exists("./mod/modules")) {//tex GOTCHA: since this continues ih_log will be created thus ./mod will actually exist. so check modules instead
 			errorMessages.push_back("ERROR: IH mod folder not found.");
 
-			for each (std::string message in errorMessages) {
+			for (const auto& message : errorMessages) {
 				log->error(message);
 			}
 		}
 
-		RealBaseAddr = (size_t)GetModuleHandle(NULL);
+		auto* base = reinterpret_cast<uint8_t*>(thisModule);
+		const auto* dos = reinterpret_cast<const IMAGE_DOS_HEADER*>(base);
+		const auto* nt = reinterpret_cast<const IMAGE_NT_HEADERS*>(base + dos->e_lfanew);
 
+		// we will use SizeOfInitializedData as SizeOfImage can change with anyting like modifying resource headers
+		// or adding new sections SizeOfInitializedData is more reliable and is hard to modify
+		const auto sz = nt->OptionalHeader.SizeOfInitializedData;
 
-		//tex Much of IHHooks hooks are based on direct addresses, so if the exe is different the user needs to know
-		//can just hope that konami actually keeps updating the exe version properly and not release multiple updates with no exe version change like they have in the past
-		//but version_info.txt should help there too
-
-		std::string gameVer = GetGameVersion();
-
-		std::string exeVersionStr = "";
-		int versionDelta = OS::CheckVersionDelta(IHHook::GameVersion, exeVersionStr);
-		if (gameVer=="" && versionDelta != 0) {
+		switch (sz)
+		{
+		case 0x019E200:
+			addressSet = mgsvtpp_adresses_1_0_15_4_en;
+			isTargetExe = true;
+			log->info("dectected mgsvtpp.exe version 1.0.15.4 (EN)");
+			break;
+		case 0x019E000:
+			addressSet = mgsvtpp_adresses_1_0_15_4_jp;
+			isTargetExe = true;
+			log->info("dectected mgsvtpp.exe version 1.0.15.4 (JP)");
+			break;
+		case 0x0002B400:
+			addressSet = mgsvtpp_adresses_1_0_15_3_en;
+			isTargetExe = true;
+			log->info("dectected mgsvtpp.exe version 1.0.15.3 (EN)");
+			break;
+		case 0x0002B200:
+			addressSet = mgsvtpp_adresses_1_0_15_3_jp;
+			isTargetExe = true;
+			log->info("dectected mgsvtpp.exe version 1.0.15.3 (JP)");
+			break;
+		default:
 			isTargetExe = false;
-
-			errorMessages.push_back("ERROR: IHHook->exe version mismatch");
+			errorMessages.push_back("ERROR: executable version mismatch");
 			errorMessages.push_back("Infinite Heaven will continue to load");
-			errorMessages.push_back("with some limitations.");
-			errorMessages.push_back("Including this menu not working in-game.");
-			if (versionDelta > 0) {
-				errorMessages.push_back("Please update MGSV.");
-			}
-			else if (versionDelta < 0) {
-				errorMessages.push_back("Please update Infinte Heaven.");
-			}
-			errorMessages.push_back("Click on the x to close this window.");
-
-			for each (std::string message in errorMessages) {
+			errorMessages.push_back("but it may not work correctly or it might crash the game");
+			errorMessages.push_back("including this menu not working in-game.");
+			for (const auto& message : errorMessages) 
+			{
 				log->error(message);
 			}
-			SetCursor(true);//tex DEBUGNOW imgui window currently wont auto dismiss, so give user cursor
-		} 
-		else {
-			if (gameVer.find("Tpp_steam_mst") == std::string::npos ) {
-				isTargetExe = false;
+			SetCursor(true);
+			break;
+		}
 
-				errorMessages.push_back("WARNING: Unknown lang version");
-				errorMessages.push_back("Infinite Heaven will continue to load");
-				errorMessages.push_back("with some limitations.");
-				errorMessages.push_back("Including this menu not working in-game.");
-				errorMessages.push_back("Click on the x to close this window.");
-				errorMessages.push_back("Game version: `"+gameVer+"`");
+		bool doHooks = isTargetExe;
 
-				for each (std::string message in errorMessages) {
-					log->error(message);
-				}
-				SetCursor(true);//tex DEBUGNOW imgui window currently wont auto dismiss, so give user cursor
-			}
-			else {
-				//tex for using listed address vs sigscan (but not actually currently doing so, see doHooks comment)
-				isTargetExe = true;
-			}//
-		}// ChecKVersion
-
-		bool doHooks = isTargetExe;//tex not actually doing hooks if not target exe. in theory could fall back to signature scanning, however it takes a litteral minute for 100+ signatures to be found 
-		//plus if you did go that route you'd have to put it at an earlier blocking point (like off dllmain itself)
-		//since this function we're in is run by a thread so the exe will continue past the point we need our hooks up and running
-		//But heres a config option to test
 		if (config.forceUsePatterns) {
 			isTargetExe = false;//tex use sig scanning instead
 			doHooks = true;
@@ -276,18 +263,6 @@ namespace IHHook {
 			Hooks_Lua::SetupLog();
 
 			MH_Initialize();
-
-			//GAMEVERSION
-			//DEBUGNOW TODO: an adresset map too I guess
-			bool isJp = gameVer.find("mst_jp") != std::string::npos;
-			bool isDay1820 = gameVer.find("day1820") != std::string::npos;
-			// bool isDay3800 = gameVer.find("day3800") != std::string::npos;
-			// bool isDay3900 = gameVer.find("day3900") != std::string::npos;
-			if (isDay1820)
-				addressSet = isJp ? mgsvtpp_adresses_1_0_15_3_jp : mgsvtpp_adresses_1_0_15_3_en;
-			else
-				addressSet = isJp ? mgsvtpp_adresses_1_0_15_4_jp : mgsvtpp_adresses_1_0_15_4_en;
-			//if lang
 
 			auto tstart = std::chrono::high_resolution_clock::now();
 
@@ -310,7 +285,7 @@ namespace IHHook {
 
 		PipeServer::StartPipeServer();
 
-		spdlog::debug("IHH ctor complete");
+		log->debug("IHH ctor complete");
 		log->flush();
 	}//IHH
 
@@ -325,11 +300,11 @@ namespace IHHook {
 		spdlog::shutdown();
 	}//~IHH
 
-	//CALLER: thread spawned by dllmain
-	//GOTCHA: KLUDGE: see comment in dllmain
+
+
 	void IHH::Initialize() {
 		CreateD3DHook();
-	}//
+	}
 
 	//OUT/SIDE: log file, log file prev
 	//OUT/SIDE: log
@@ -399,74 +374,6 @@ namespace IHHook {
 
 		}//d3dHooked
 	}//CreateD3DHook
-
-	std::string IHH::GetGameVersion() {
-		//rlc reworked to back compat support 1.0.15.3
-		//DEBUGNOW So jp voice version is actually different exe, so cant just rely on exe version info.
-		std::string versionInfoFileName = "version_info.txt";
-		HMODULE hExe = GetModuleHandle(NULL);
-		WCHAR fullPath[MAX_PATH]{ 0 };
-		GetModuleFileNameW(hExe, fullPath, MAX_PATH);
-		std::filesystem::path path(fullPath);
-		std::string exeName = path.filename().string();
-		std::string exeNameNoExt = exeName.substr(0, exeName.find_last_of("."));
-		std::ifstream infile(exeNameNoExt+"_"+versionInfoFileName);//rlc prioritize potential exe-specific ver
-		if (infile.fail()) {
-			infile = std::ifstream(versionInfoFileName);
-			if (infile.fail()) {//tex likely pirated game, or user has some wierd setup, cant know actual version
-				log->warn("Could not load ", exeName+"_"+versionInfoFileName);
-				log->warn("Cannot differentiate what language version the exe is, so game may crash when hooking if exe version matches but using different sku.");
-				//any point using errormessages since if this is an actual lang exe mismatch its going to crash before it gets to the ui
-				//DEBUGNOW think what to do.
-			}
-		}
-
-		//REF
-		//1.0.15.3:
-		//Tpp_steam_mst_en_day1820Mgo_patch_0212_1307
-		//Tpp_steam_mst_jp_day1820Mgo_patch_0212_1307
-		//1.0.15.4:
-		//Tpp_steam_mst_en_day3800Mgo_patch_0525_2221
-		//Tpp_steam_mst_jp_day3800Mgo_patch_0525_2221
-		//1.0.15.4a:
-		//Tpp_steam_mst_en_day3900Mgo_patch_0707_1632
-		//Tpp_steam_mst_jp_day3900Mgo_patch_0707_1632
-		std::string line;
-		std::string lang = "";
-		std::string gameVer = "";
-		while (std::getline(infile, line)) {
-			std::istringstream iss(line);
-			
-			gameVer = line.substr(0, 24);
-			log->debug("Found gameVer: {}", gameVer);
-			if (gameVer.find("Tpp_steam_mst") != std::string::npos)
-				return gameVer;
-			
-
-			if (line.length() < std::string("Tpp_steam_mst_en").length()) {
-				log->warn("Unexpected version string, string shorter than expected");
-				break;
-			}
-
-			std::string prefix = "Tpp_steam_mst_";
-			std::size_t found = line.find(prefix);
-			if (found == std::string::npos) {
-				log->warn("Unexpected version string, could not find {}", prefix);
-				break;
-			}
-
-			lang = line.substr(prefix.length(), 2);//en,jp etc
-			log->debug("Found lang: {}", lang);
-
-			if (lang != "en" && lang != "jp") {
-				log->warn("Unexpected lang version");
-			}
-			else {
-				break;
-			}
-		}//while infile
-		return lang;
-	}//GetGameVersion
 
 	//D3D11Hook->present
 	//GOTCHA: this is blocking to actual d3d Present, so keep performance in mind
@@ -875,8 +782,8 @@ namespace IHHook {
 			std::string name = entry.first;
 			if (isTargetExe) {
 				log->info("isTargetExe, rebasing addr {}", name);
-				int64_t addr = entry.second;
-				int64_t rebasedAddr = (addr - BaseAddr) + RealBaseAddr;
+				uint64_t addr = entry.second;
+				uint64_t rebasedAddr = (addr - BaseAddr) + (uint64_t)thisModule;
 				addressSet[name] = rebasedAddr;
 			}
 			else {
