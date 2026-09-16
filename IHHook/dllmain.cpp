@@ -6,7 +6,7 @@
 #include <filesystem>
 
 HMODULE g_thisModule;
-extern HMODULE origDll; // dinputproxy
+extern HMODULE g_origDll; // dinputproxy
 
 static void initialize()
 {
