@@ -52,8 +52,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 {
     if (ul_reason_for_call == DLL_PROCESS_ATTACH)
     {
-        //DisableThreadLibraryCalls(hModule);
-
         g_thisModule = hModule;
 
         initialize();
@@ -61,6 +59,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     else if (ul_reason_for_call == DLL_PROCESS_DETACH)
     {
         IHHook::Shutdown();
+
         // DInputProxy
         if (origDll)
         {

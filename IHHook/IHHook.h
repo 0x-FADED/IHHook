@@ -57,6 +57,9 @@ return this
 #include <spdlog/spdlog.h>
 #include <string>
 #include <vector>
+#include "imgui/imgui.h"
+
+
 
 namespace IHHook
 {
@@ -200,6 +203,8 @@ namespace IHHook
         std::unique_ptr<D3D11Hook> d3d11Hook{};
         std::unique_ptr<WindowsMessageHook> windowsMessageHook;
         std::shared_ptr<spdlog::logger> log;
+
+        ImGuiContext* p_imguiContext{ nullptr };
 
         std::string errorString{ "" };
 

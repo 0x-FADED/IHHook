@@ -177,17 +177,20 @@ extern "C" __declspec(dllexport) void __stdcall ordinal101()
 {
     if (!ordinal101_Orig)
         LoadProxiedDll();
+
     ordinal101_Orig();
 }
 extern "C" __declspec(dllexport) void __stdcall ordinal102()
 {
     if (!ordinal102_Orig)
         LoadProxiedDll();
+
     ordinal102_Orig();
 }
 extern "C" __declspec(dllexport) void __stdcall ordinal103()
 {
     if (!ordinal103_Orig)
         LoadProxiedDll();
+
     ordinal103_Orig();
 }
