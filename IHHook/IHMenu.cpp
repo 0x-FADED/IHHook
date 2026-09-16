@@ -400,7 +400,7 @@ namespace IHHook
 
             if (errorMessages.size() > 0)
             {
-                for each (std::string message in errorMessages)
+                for (const auto& message : errorMessages)
                 {
                     menuItems.push_back(message);
                 }

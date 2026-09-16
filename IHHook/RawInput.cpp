@@ -292,15 +292,8 @@ namespace IHHook
             {
                 spdlog::warn("RawInput UnRegisterAction: Action not found for vKey {}", vKey);
             }
-
-            // for vkey actions
-            // remove action
-
-            // if actions empty
-            // delete buttonActions[vKey]
-            // buttonActions[vKey] = NULL;
-        } // UnRegisterAction
-
+           
+        } 
         // DEBUG
         void TestAction(BUTTONEVENT buttonEvent)
         {

@@ -101,7 +101,6 @@ namespace IHHook
     public:
         IHH();
         virtual ~IHH();
-
         void Initialize();
 
         HMODULE GetModule()

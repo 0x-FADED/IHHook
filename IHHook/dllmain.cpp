@@ -45,6 +45,7 @@ static void initialize()
     anti_anti_dbg();
     g_ihhook = std::make_unique<IHHook::IHH>();
     g_ihhook->Initialize();
+
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
