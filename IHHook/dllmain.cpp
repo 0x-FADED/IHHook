@@ -2,6 +2,7 @@
 #include "IHHook.h"
 #include "ntdll.h"
 #include "windowsapi.h"
+#include "plugin_loader.hpp"
 
 #include <filesystem>
 
@@ -34,9 +35,9 @@ static void initialize()
         peb->NtGlobalFlag &= ~0x70;
 
         // dx11 anti-anti-hook
-        constexpr const uint8_t bytes[]{ 0xEB, 0x2D };
-        auto addr = hook::get_pattern<uint8_t>("75 2D FF 15 ? ? ? ? 49 8B 14 FF");
-        if(*addr == 0x75)
+        constexpr const uint8_t bytes[]{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
+        auto addr = hook::get_pattern<uint8_t>("4C 8D 44 24 30 48 8D 55 E8", 0x2C);
+        if (*addr == 0xE8)
         {
             hook::patch(addr, bytes);
         }
@@ -45,25 +46,38 @@ static void initialize()
     anti_anti_dbg();
     g_ihhook = std::make_unique<IHHook::IHH>();
     g_ihhook->Initialize();
+}
 
+
+DWORD WINAPI InitThread(LPVOID)
+{
+    PluginLoader::LoadPlugins();
+
+    return 0;
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
     if (ul_reason_for_call == DLL_PROCESS_ATTACH)
     {
+        DisableThreadLibraryCalls(hModule);
+
         g_thisModule = hModule;
 
         initialize();
+     
+        CloseHandle(CreateThread(nullptr, 0,(LPTHREAD_START_ROUTINE)InitThread, nullptr, 0, nullptr));
     }
     else if (ul_reason_for_call == DLL_PROCESS_DETACH)
     {
         IHHook::Shutdown();
 
+        PluginLoader::UnloadPlugins();
+
         // DInputProxy
-        if (origDll)
+        if (g_origDll)
         {
-            FreeLibrary(origDll);
+            FreeLibrary(g_origDll);
         }
     }
 
