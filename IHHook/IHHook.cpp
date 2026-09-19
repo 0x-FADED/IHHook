@@ -37,6 +37,8 @@
 #include "hooks/mgsvtpp_adresses_1_0_15_4_jp.h"
 #include "hooks/mgsvtpp_patterns.h"
 
+#include "plugin_loader.hpp"
+
 #include <fstream>
 #include <sstream>
 
@@ -146,6 +148,10 @@ namespace IHHook
         doShutDown = true;
         RawInput::UninitializeInput();
         PipeServer::ShutDownPipeServer();
+        if (config.enable_dll_loader)
+        {
+            Plugin_Loader::UnloadPlugins();
+        }
     } // Shutdown
 
     // GOTCHA: only set up stuff that can be done in this point of fox engine execution (when it's loading this dinput8.dll
@@ -750,6 +756,7 @@ namespace IHHook
         config.logFileLoad = false;
         config.forceUsePatterns = false;
         config.logFoxStringCreateInPlace = false; // ZIP: Fox hooks
+        config.enable_dll_loader = false;
 
         std::string line;
         while (std::getline(infile, line))
@@ -848,6 +855,10 @@ namespace IHHook
             {
                 config.logTime = valueStr == "true";
             }
+            else if (varName == "enable_dll_loader")
+            {
+                config.enable_dll_loader = valueStr == "true";
+            }
         } // while line
 
         return true;
@@ -909,6 +920,15 @@ namespace IHHook
         } // for addressSet
         return foundAllAddresses;
     } // RebaseAddresses
+    void IHH::Load_Dlls()
+    {
+        if (!config.enable_dll_loader)
+        {
+            spdlog::info("DLL loader is disabled in config, skipping plugin loading...");
+            return;
+        }
+        Plugin_Loader::LoadPlugins();
+    }
 
     typedef DWORD(WINAPI* CREATEHOOKS)();
     void IHH::CreateAllHooks()
