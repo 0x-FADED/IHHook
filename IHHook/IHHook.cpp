@@ -53,7 +53,7 @@ namespace IHHook
     extern void CreateHooks();
 
     struct Config config;
-    bool ParseConfig(std::string fileName);
+    bool ParseConfig(const std::string& fileName);
 
     std::atomic<bool> doShutDown = false;
 
@@ -288,10 +288,8 @@ namespace IHHook
             break;
         }
         }
-        
 
         bool doHooks = isTargetExe;
-        g_isMinHookInitialized = doHooks;
 
         if (config.forceUsePatterns)
         {
@@ -300,14 +298,15 @@ namespace IHHook
         }
 
         if (doHooks)
-        { 
+        {
             // tex hook em up boys
             Hooks_Lua::SetupLog();
 
             MH_Initialize();
 
-            auto tstart = std::chrono::high_resolution_clock::now();
+            g_isMinHookInitialized = true;
 
+            auto tstart = std::chrono::high_resolution_clock::now();
 
             bool foundAllAddresses = RebaseAddresses();
 
@@ -320,7 +319,7 @@ namespace IHHook
                 SetFuncPtrs();
                 // DEBUGNOW CreateHooks();
             }
-          
+
             CreateAllHooks();
 
             auto tend = std::chrono::high_resolution_clock::now();
@@ -464,14 +463,12 @@ namespace IHHook
         ImGui::EndFrame();
         ImGui::Render();
 
-        ID3D11DeviceContext* context = nullptr;
-        d3d11Hook->get_device()->GetImmediateContext(&context);
-
-        context->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
+        d3d11Hook->get_context()->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
 
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
         ImGui::SetCurrentContext(previousContext);
+
 
     } // OnFrame
 
@@ -526,7 +523,6 @@ namespace IHHook
                 }
             }
             ImGui::SetCurrentContext(previousContext);
-
         }
 
         if (handledMessage)
@@ -555,6 +551,7 @@ namespace IHHook
 
         auto device = d3d11Hook->get_device();
         auto swapChain = d3d11Hook->get_swap_chain();
+        auto context = d3d11Hook->get_context();
 
         // Wait.
         if (device == nullptr || swapChain == nullptr)
@@ -563,8 +560,6 @@ namespace IHHook
             return false;
         }
 
-        ID3D11DeviceContext* context = nullptr;
-        device->GetImmediateContext(&context);
 
         DXGI_SWAP_CHAIN_DESC swapDesc{};
         swapChain->GetDesc(&swapDesc);
@@ -611,6 +606,7 @@ namespace IHHook
                 log->error("Failed to initialize ImGui.");
                 return false;
             }
+
             ImGuiInitialized = true;
         }
 
@@ -630,7 +626,6 @@ namespace IHHook
             IHMenu::AddMenuCommands();
 
             InitCursorHook();
-
 
             InitStyleEditor(); // StyleEditor
 
@@ -739,7 +734,7 @@ namespace IHHook
     // TODO: move to own file
     // tex: even though it's saved as valid lua, we'll just parse it as text on IHHook side rather than dealing with back
     // and forth through lua, and so IHHook can use it before lua is stood up
-    bool ParseConfig(std::string fileName)
+    bool ParseConfig(const std::string& fileName)
     {
         spdlog::debug("ParseConfig {}", fileName);
         std::ifstream infile(fileName);
@@ -859,6 +854,7 @@ namespace IHHook
             {
                 config.enable_dll_loader = valueStr == "true";
             }
+
         } // while line
 
         return true;
@@ -920,6 +916,7 @@ namespace IHHook
         } // for addressSet
         return foundAllAddresses;
     } // RebaseAddresses
+
     void IHH::Load_Dlls()
     {
         if (!config.enable_dll_loader)

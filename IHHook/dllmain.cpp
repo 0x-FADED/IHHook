@@ -2,7 +2,6 @@
 #include "IHHook.h"
 #include "ntdll.h"
 #include "windowsapi.h"
-#include "plugin_loader.hpp"
 
 #include <filesystem>
 
@@ -51,7 +50,7 @@ static void initialize()
 
 DWORD WINAPI InitThread(LPVOID)
 {
-    PluginLoader::LoadPlugins();
+    g_ihhook->Load_Dlls();
 
     return 0;
 }
@@ -71,9 +70,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     else if (ul_reason_for_call == DLL_PROCESS_DETACH)
     {
         IHHook::Shutdown();
-
-        PluginLoader::UnloadPlugins();
-
+        
         // DInputProxy
         if (g_origDll)
         {
