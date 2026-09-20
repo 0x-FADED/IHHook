@@ -1074,7 +1074,8 @@ namespace IHHook
         // 2://SNEAKING_SUIT 		case 7://NAKED 		case 8://SNEAKING_SUIT_TPP 		case 9://BATTLEDRESS 		case 11://LEATHER 		case 12://GOLD
         // case 13://SILVER 		case 14://AVATAR_EDIT_MAN 		case 15://MGS3 		case 16://MGS3_NAKED 		case 17://MGS3_SNEAKING 		case
         // 18://MGS3_TUXEDO 		case 19://EVA_CLOSE 		case 20://EVA_OPEN 		case 21://BOSS_CLOSE 		case 22://BOSS_OPEN 		case
-        // 23://SWIMWEAR 		case 24://SWIMWEAR_G 		case 25://SWIMWEAR_H 			if (playerType == 1) {//DD_MALE 				if (playerPartsType != 17) {//MGS3_SNEAKING 					return true;
+        // 23://SWIMWEAR 		case 24://SWIMWEAR_G 		case 25://SWIMWEAR_H 			if (playerType == 1) {//DD_MALE 				if (playerPartsType
+        // != 17) {//MGS3_SNEAKING 					return true;
         //				}
         //			}
         //			else if (playerType == 2) {//DD_FEMALE

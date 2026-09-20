@@ -82,25 +82,6 @@ namespace IHHook
                 return langId;
             }
 
-            // if (locationCode == 10) {//afgh
-            //	*langId = 0x1b094033d45d;////tpp_loc_afghan
-            //	return langId;
-            // }
-            // if (locationCode == 20) {//mafr
-            //	*langId = 0x7114b69e71e7;
-            //	return langId;
-            // }
-            // if (locationCode == 50) {//mtbs
-            //	*langId = 0xfa8eaa7758b1;//tpp_loc_mb
-            //	return langId;
-            // }
-
-            ////DEBUGNOW proof of concept hack
-            // if (locationCode == 40) {//gntn
-            //	*langId = 0x27376b6e62ff;//tpp_loc_gntn - caplags langid from his gntn addon
-            //	return langId;
-            // }
-
             *langId = 0xb8a0bf169f98; // "" empty string
             return langId;
         } // GetFreeMissionNameKeyHook
@@ -187,13 +168,7 @@ namespace IHHook
                 char* langId = "tpp_loc_afghan";
                 long long tpp_loc_afghanS64 = ff_stringid_hash_n(langId, strlen(langId));
 
-                spdlog::debug("Str64 tpp_loc_afghan:0x{:x}", result);
-
-                // 0x1b094033d45d//tpp_loc_afghan
-                //{ 20,0x7114b69e71e7 },//mafr,tpp_loc_africa
-                //{ 50,0xfa8eaa7758b1 },//mtbs,tpp_loc_mb
-                ////DEBUGNOW proof of concept hack
-                //{ 40,0x27376b6e62ff },//tpp_loc_gntn - caplags langid from his gntn addon
+                spdlog::debug("Str64 tpp_loc_afghan:0x{:x}", tpp_loc_afghanS64);
             }
 
             if (addressSet["GetFreeMissionNameKey"] == NULL || addressSet["foxprintf"] == NULL || addressSet["voidreturn"] == NULL)

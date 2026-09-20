@@ -469,7 +469,6 @@ namespace IHHook
 
         ImGui::SetCurrentContext(previousContext);
 
-
     } // OnFrame
 
     // D3D11Hook
@@ -559,7 +558,6 @@ namespace IHHook
             log->info("Device or SwapChain null. DirectX 12 may be in use. A crash may occur.");
             return false;
         }
-
 
         DXGI_SWAP_CHAIN_DESC swapDesc{};
         swapChain->GetDesc(&swapDesc);

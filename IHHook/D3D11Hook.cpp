@@ -136,7 +136,7 @@ HRESULT WINAPI D3D11Hook::resize_buffers(__int64 a1, unsigned int buffer_count, 
         d3d11->m_device_context->Release();
         d3d11->m_device_context = nullptr;
         d3d11->m_context_acquired = false;
-        spdlog::info("ID3D11Device ptr destroyed");
+        spdlog::info("ID3D11DeviceContext ptr destroyed");
     }
 
 
@@ -145,7 +145,7 @@ HRESULT WINAPI D3D11Hook::resize_buffers(__int64 a1, unsigned int buffer_count, 
         d3d11->m_device->Release();
         d3d11->m_device = nullptr;
         d3d11->m_device_acquired = false;
-        spdlog::info("ID3D11DeviceContext ptr destroyed");
+        spdlog::info("ID3D11Device ptr destroyed");
     }
 
     if (d3d11->m_on_resize_buffers)

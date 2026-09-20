@@ -283,44 +283,44 @@
 #define STB_TRUETYPE_IMPLEMENTATION // force following include to generate implementation
 #include "stb_truetype.h"
 
-unsigned char ttf_buffer[1 << 20];
-unsigned char temp_bitmap[512 * 512];
+unsigned char ttf_buffer[1<<20];
+unsigned char temp_bitmap[512*512];
 
 stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs
 GLuint ftex;
 
 void my_stbtt_initfont(void)
 {
-	fread(ttf_buffer, 1, 1 << 20, fopen("c:/windows/fonts/times.ttf", "rb"));
-	stbtt_BakeFontBitmap(ttf_buffer, 0, 32.0, temp_bitmap, 512, 512, 32, 96, cdata); // no guarantee this fits!
-	// can free ttf_buffer at this point
-	glGenTextures(1, &ftex);
-	glBindTexture(GL_TEXTURE_2D, ftex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, 512, 512, 0, GL_ALPHA, GL_UNSIGNED_BYTE, temp_bitmap);
-	// can free temp_bitmap at this point
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   fread(ttf_buffer, 1, 1<<20, fopen("c:/windows/fonts/times.ttf", "rb"));
+   stbtt_BakeFontBitmap(ttf_buffer,0, 32.0, temp_bitmap,512,512, 32,96, cdata); // no guarantee this fits!
+   // can free ttf_buffer at this point
+   glGenTextures(1, &ftex);
+   glBindTexture(GL_TEXTURE_2D, ftex);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, 512,512, 0, GL_ALPHA, GL_UNSIGNED_BYTE, temp_bitmap);
+   // can free temp_bitmap at this point
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 }
 
-void my_stbtt_print(float x, float y, char* text)
+void my_stbtt_print(float x, float y, char *text)
 {
-	// assume orthographic projection with units = screen pixels, origin at top left
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, ftex);
-	glBegin(GL_QUADS);
-	while (*text) {
-		if (*text >= 32 && *text < 128) {
-			stbtt_aligned_quad q;
-			stbtt_GetBakedQuad(cdata, 512, 512, *text - 32, &x, &y, &q, 1);//1=opengl & d3d10+,0=d3d9
-			glTexCoord2f(q.s0, q.t0); glVertex2f(q.x0, q.y0);
-			glTexCoord2f(q.s1, q.t0); glVertex2f(q.x1, q.y0);
-			glTexCoord2f(q.s1, q.t1); glVertex2f(q.x1, q.y1);
-			glTexCoord2f(q.s0, q.t1); glVertex2f(q.x0, q.y1);
-		}
-		++text;
-	}
-	glEnd();
+   // assume orthographic projection with units = screen pixels, origin at top left
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   glEnable(GL_TEXTURE_2D);
+   glBindTexture(GL_TEXTURE_2D, ftex);
+   glBegin(GL_QUADS);
+   while (*text) {
+      if (*text >= 32 && *text < 128) {
+         stbtt_aligned_quad q;
+         stbtt_GetBakedQuad(cdata, 512,512, *text-32, &x,&y,&q,1);//1=opengl & d3d10+,0=d3d9
+         glTexCoord2f(q.s0,q.t0); glVertex2f(q.x0,q.y0);
+         glTexCoord2f(q.s1,q.t0); glVertex2f(q.x1,q.y0);
+         glTexCoord2f(q.s1,q.t1); glVertex2f(q.x1,q.y1);
+         glTexCoord2f(q.s0,q.t1); glVertex2f(q.x0,q.y1);
+      }
+      ++text;
+   }
+   glEnd();
 }
 #endif
 //
@@ -334,25 +334,25 @@ void my_stbtt_print(float x, float y, char* text)
 #define STB_TRUETYPE_IMPLEMENTATION // force following include to generate implementation
 #include "stb_truetype.h"
 
-char ttf_buffer[1 << 25];
+char ttf_buffer[1<<25];
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-	stbtt_fontinfo font;
-	unsigned char* bitmap;
-	int w, h, i, j, c = (argc > 1 ? atoi(argv[1]) : 'a'), s = (argc > 2 ? atoi(argv[2]) : 20);
+   stbtt_fontinfo font;
+   unsigned char *bitmap;
+   int w,h,i,j,c = (argc > 1 ? atoi(argv[1]) : 'a'), s = (argc > 2 ? atoi(argv[2]) : 20);
 
-	fread(ttf_buffer, 1, 1 << 25, fopen(argc > 3 ? argv[3] : "c:/windows/fonts/arialbd.ttf", "rb"));
+   fread(ttf_buffer, 1, 1<<25, fopen(argc > 3 ? argv[3] : "c:/windows/fonts/arialbd.ttf", "rb"));
 
-	stbtt_InitFont(&font, ttf_buffer, stbtt_GetFontOffsetForIndex(ttf_buffer, 0));
-	bitmap = stbtt_GetCodepointBitmap(&font, 0, stbtt_ScaleForPixelHeight(&font, s), c, &w, &h, 0, 0);
+   stbtt_InitFont(&font, ttf_buffer, stbtt_GetFontOffsetForIndex(ttf_buffer,0));
+   bitmap = stbtt_GetCodepointBitmap(&font, 0,stbtt_ScaleForPixelHeight(&font, s), c, &w, &h, 0,0);
 
-	for (j = 0; j < h; ++j) {
-		for (i = 0; i < w; ++i)
-			putchar(" .:ioVM@"[bitmap[j * w + i] >> 5]);
-		putchar('\n');
-	}
-	return 0;
+   for (j=0; j < h; ++j) {
+      for (i=0; i < w; ++i)
+         putchar(" .:ioVM@"[bitmap[j*w+i]>>5]);
+      putchar('\n');
+   }
+   return 0;
 }
 #endif
 //
@@ -374,46 +374,46 @@ int main(int argc, char** argv)
 // Complete program: print "Hello World!" banner, with bugs
 //
 #if 0
-char buffer[24 << 20];
+char buffer[24<<20];
 unsigned char screen[20][79];
 
-int main(int arg, char** argv)
+int main(int arg, char **argv)
 {
-	stbtt_fontinfo font;
-	int i, j, ascent, baseline, ch = 0;
-	float scale, xpos = 2; // leave a little padding in case the character extends left
-	char* text = "Heljo World!"; // intentionally misspelled to show 'lj' brokenness
+   stbtt_fontinfo font;
+   int i,j,ascent,baseline,ch=0;
+   float scale, xpos=2; // leave a little padding in case the character extends left
+   char *text = "Heljo World!"; // intentionally misspelled to show 'lj' brokenness
 
-	fread(buffer, 1, 1000000, fopen("c:/windows/fonts/arialbd.ttf", "rb"));
-	stbtt_InitFont(&font, buffer, 0);
+   fread(buffer, 1, 1000000, fopen("c:/windows/fonts/arialbd.ttf", "rb"));
+   stbtt_InitFont(&font, buffer, 0);
 
-	scale = stbtt_ScaleForPixelHeight(&font, 15);
-	stbtt_GetFontVMetrics(&font, &ascent, 0, 0);
-	baseline = (int)(ascent * scale);
+   scale = stbtt_ScaleForPixelHeight(&font, 15);
+   stbtt_GetFontVMetrics(&font, &ascent,0,0);
+   baseline = (int) (ascent*scale);
 
-	while (text[ch]) {
-		int advance, lsb, x0, y0, x1, y1;
-		float x_shift = xpos - (float)floor(xpos);
-		stbtt_GetCodepointHMetrics(&font, text[ch], &advance, &lsb);
-		stbtt_GetCodepointBitmapBoxSubpixel(&font, text[ch], scale, scale, x_shift, 0, &x0, &y0, &x1, &y1);
-		stbtt_MakeCodepointBitmapSubpixel(&font, &screen[baseline + y0][(int)xpos + x0], x1 - x0, y1 - y0, 79, scale, scale, x_shift, 0, text[ch]);
-		// note that this stomps the old data, so where character boxes overlap (e.g. 'lj') it's wrong
-		// because this API is really for baking character bitmaps into textures. if you want to render
-		// a sequence of characters, you really need to render each bitmap to a temp buffer, then
-		// "alpha blend" that into the working buffer
-		xpos += (advance * scale);
-		if (text[ch + 1])
-			xpos += scale * stbtt_GetCodepointKernAdvance(&font, text[ch], text[ch + 1]);
-		++ch;
-	}
+   while (text[ch]) {
+      int advance,lsb,x0,y0,x1,y1;
+      float x_shift = xpos - (float) floor(xpos);
+      stbtt_GetCodepointHMetrics(&font, text[ch], &advance, &lsb);
+      stbtt_GetCodepointBitmapBoxSubpixel(&font, text[ch], scale,scale,x_shift,0, &x0,&y0,&x1,&y1);
+      stbtt_MakeCodepointBitmapSubpixel(&font, &screen[baseline + y0][(int) xpos + x0], x1-x0,y1-y0, 79, scale,scale,x_shift,0, text[ch]);
+      // note that this stomps the old data, so where character boxes overlap (e.g. 'lj') it's wrong
+      // because this API is really for baking character bitmaps into textures. if you want to render
+      // a sequence of characters, you really need to render each bitmap to a temp buffer, then
+      // "alpha blend" that into the working buffer
+      xpos += (advance * scale);
+      if (text[ch+1])
+         xpos += scale*stbtt_GetCodepointKernAdvance(&font, text[ch],text[ch+1]);
+      ++ch;
+   }
 
-	for (j = 0; j < 20; ++j) {
-		for (i = 0; i < 78; ++i)
-			putchar(" .:ioVM@"[screen[j][i] >> 5]);
-		putchar('\n');
-	}
+   for (j=0; j < 20; ++j) {
+      for (i=0; i < 78; ++i)
+         putchar(" .:ioVM@"[screen[j][i]>>5]);
+      putchar('\n');
+   }
 
-	return 0;
+   return 0;
 }
 #endif
 
@@ -638,8 +638,7 @@ extern "C"
     typedef struct
     {
         float font_size;
-        int first_unicode_codepoint_in_range; // if non-zero, then the chars are continuous, and this is the first
-                                              // codepoint
+        int first_unicode_codepoint_in_range; // if non-zero, then the chars are continuous, and this is the first codepoint
         int* array_of_unicode_codepoints;     // if non-zero, then this is an array of unicode codepoints
         int num_chars;
         stbtt_packedchar* chardata_for_range;     // output
@@ -1099,13 +1098,12 @@ extern "C"
     // in a single-channel texture, sampling with bilinear filtering, and testing against
     // larger than some threshold to produce scalable fonts.
     //        info              --  the font
-    //        scale             --  controls the size of the resulting SDF bitmap, same as it would be creating a
-    //        regular bitmap glyph/codepoint   --  the character to generate the SDF for padding           --  extra
-    //        "pixels" around the character which are filled with the distance to the character (not 0),
+    //        scale             --  controls the size of the resulting SDF bitmap, same as it would be creating a regular bitmap
+    //        glyph/codepoint   --  the character to generate the SDF for
+    //        padding           --  extra "pixels" around the character which are filled with the distance to the character (not 0),
     //                                 which allows effects like bit outlines
-    //        onedge_value      --  value 0-255 to test the SDF against to reconstruct the character (i.e. the
-    //        isocontour of the character) pixel_dist_scale  --  what value the SDF should increase by when moving one
-    //        SDF "pixel" away from the edge (on the 0..255 scale)
+    //        onedge_value      --  value 0-255 to test the SDF against to reconstruct the character (i.e. the isocontour of the character)
+    //        pixel_dist_scale  --  what value the SDF should increase by when moving one SDF "pixel" away from the edge (on the 0..255 scale)
     //                                 if positive, > onedge_value is inside; if negative, < onedge_value is inside
     //        width,height      --  output height & width of the SDF bitmap (including padding)
     //        xoff,yoff         --  output origin of the character
@@ -1165,10 +1163,10 @@ extern "C"
     //             You have to have called stbtt_InitFont() first.
 
     STBTT_DEF int stbtt_FindMatchingFont(const unsigned char* fontdata, const char* name, int flags);
-    // returns the offset (not index) of the font that matches, or -1 if none
-    //   if you use STBTT_MACSTYLE_DONTCARE, use a font name like "Arial Bold".
-    //   if you use any other flag, use a font name like "Arial"; this checks
-    //     the 'macStyle' header field; i don't know if fonts set this consistently
+// returns the offset (not index) of the font that matches, or -1 if none
+//   if you use STBTT_MACSTYLE_DONTCARE, use a font name like "Arial Bold".
+//   if you use any other flag, use a font name like "Arial"; this checks
+//     the 'macStyle' header field; i don't know if fonts set this consistently
 #define STBTT_MACSTYLE_DONTCARE 0
 #define STBTT_MACSTYLE_BOLD 1
 #define STBTT_MACSTYLE_ITALIC 2
@@ -2368,7 +2366,7 @@ static int stbtt__run_charstring(const stbtt_fontinfo* info, int glyph_index, st
         b0 = stbtt__buf_get8(&b);
         switch (b0)
         {
-            // @TODO implement hinting
+        // @TODO implement hinting
         case 0x13: // hintmask
         case 0x14: // cntrmask
             if (in_header)
@@ -2542,8 +2540,8 @@ static int stbtt__run_charstring(const stbtt_fontinfo* info, int glyph_index, st
             int b1 = stbtt__buf_get8(&b);
             switch (b1)
             {
-                // @TODO These "flex" implementations ignore the flex-depth and resolution,
-                // and always draw beziers.
+            // @TODO These "flex" implementations ignore the flex-depth and resolution,
+            // and always draw beziers.
             case 0x22: // hflex
                 if (sp < 7)
                     return STBTT__CSERR("hflex stack");
@@ -3477,8 +3475,7 @@ static void stbtt__rasterize_sorted_edges(stbtt__bitmap* result, stbtt__edge* e,
                     break;
             }
 
-            // insert all edges that start before the center of this scanline -- omit ones that also end on this
-            // scanline
+            // insert all edges that start before the center of this scanline -- omit ones that also end on this scanline
             while (e->y0 <= scan_y)
             {
                 if (e->y1 > scan_y)
@@ -5367,9 +5364,8 @@ static int stbtt__solve_cubic(float a, float b, float c, float* r)
         r[1] = s - u * (m + n);
         r[2] = s - u * (m - n);
 
-        // STBTT_assert( STBTT_fabs(((r[0]+a)*r[0]+b)*r[0]+c) < 0.05f);  // these asserts may not be safe at all scales,
-        // though they're in bezier t parameter units so maybe? STBTT_assert( STBTT_fabs(((r[1]+a)*r[1]+b)*r[1]+c) <
-        // 0.05f); STBTT_assert( STBTT_fabs(((r[2]+a)*r[2]+b)*r[2]+c) < 0.05f);
+        // STBTT_assert( STBTT_fabs(((r[0]+a)*r[0]+b)*r[0]+c) < 0.05f);  // these asserts may not be safe at all scales, though they're in bezier t parameter
+        // units so maybe? STBTT_assert( STBTT_fabs(((r[1]+a)*r[1]+b)*r[1]+c) < 0.05f); STBTT_assert( STBTT_fabs(((r[2]+a)*r[2]+b)*r[2]+c) < 0.05f);
         return 3;
     }
 }
@@ -5464,8 +5460,11 @@ STBTT_DEF unsigned char* stbtt_GetGlyphSDF(
                 float x_gspace = (sx / scale_x);
                 float y_gspace = (sy / scale_y);
 
-                int winding = stbtt__compute_crossings_x(x_gspace, y_gspace, num_verts, verts); // @OPTIMIZE: this could just be a rasterization, but needs
-                                                                                                // to be line vs. non-tesselated curves so a new path
+                int winding = stbtt__compute_crossings_x(
+                    x_gspace,
+                    y_gspace,
+                    num_verts,
+                    verts); // @OPTIMIZE: this could just be a rasterization, but needs to be line vs. non-tesselated curves so a new path
 
                 for (i = 0; i < num_verts; ++i)
                 {
@@ -5491,8 +5490,8 @@ STBTT_DEF unsigned char* stbtt_GetGlyphSDF(
                             // minimize (x'-sx)*(x'-sx)+(y'-sy)*(y'-sy)
                             float dx = x1 - x0, dy = y1 - y0;
                             float px = x0 - sx, py = y0 - sy;
-                            // minimize (px+t*dx)^2 + (py+t*dy)^2 = px*px + 2*px*dx*t + t^2*dx*dx + py*py + 2*py*dy*t +
-                            // t^2*dy*dy derivative: 2*px*dx + 2*py*dy + (2*dx*dx+2*dy*dy)*t, set to 0 and solve
+                            // minimize (px+t*dx)^2 + (py+t*dy)^2 = px*px + 2*px*dx*t + t^2*dx*dx + py*py + 2*py*dy*t + t^2*dy*dy
+                            // derivative: 2*px*dx + 2*py*dy + (2*dx*dx+2*dy*dy)*t, set to 0 and solve
                             float t = -(px * dx + py * dy) / (dx * dx + dy * dy);
                             if (t >= 0.0f && t <= 1.0f)
                                 min_dist = dist;
@@ -5538,8 +5537,7 @@ STBTT_DEF unsigned char* stbtt_GetGlyphSDF(
                                         float root = (float)STBTT_sqrt(discriminant);
                                         res[0] = (-b - root) / (2 * a);
                                         res[1] = (-b + root) / (2 * a);
-                                        num = 2; // don't bother distinguishing 1-solution case, as code below will
-                                                 // still work
+                                        num = 2; // don't bother distinguishing 1-solution case, as code below will still work
                                     }
                                 }
                             }

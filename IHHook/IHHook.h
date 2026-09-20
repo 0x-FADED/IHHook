@@ -59,12 +59,11 @@ return this
 #include <vector>
 #include "imgui/imgui.h"
 
-
-
 namespace IHHook
 {
     struct Config
     {
+        bool enable_dll_loader {false };
         bool debugMode{ true }; // TODO debug level instead
         bool openConsole{ false };
         bool enableCityHook{ false }; // log cityhash calls, which underly strcode functions
@@ -75,7 +74,6 @@ namespace IHHook
         bool logTime{ false };                   // prefix |time| before log (used to be default) time is good for figuring out how long
                                                  // between steps, but makes it harder to compare similar logs. TODO: might be better to have a
                                                  // SetPattern lua call for more control?
-        bool enable_dll_loader {false };                                        
     };
     extern struct Config config;
     static const std::string hookConfigName = "ihhook_config.lua";
@@ -107,12 +105,12 @@ namespace IHHook
         virtual ~IHH();
         void Initialize();
 
-        void Load_Dlls();
-
         HMODULE GetModule()
         {
             return thisModule;
         } // GetModule
+
+        void Load_Dlls();
 
         // tex using this as an indicator that ihhmenu is initialized
         bool IsFrameInitialized()

@@ -736,8 +736,7 @@ static int stb_textedit_paste_internal(STB_TEXTEDIT_STRING* str, STB_TexteditSta
         state->has_preferred_x = 0;
         return 1;
     }
-    // note: paste failure will leave deleted selection, may be restored with an undo (see
-    // https://github.com/nothings/stb/issues/734 for details)
+    // note: paste failure will leave deleted selection, may be restored with an undo (see https://github.com/nothings/stb/issues/734 for details)
     return 0;
 }
 

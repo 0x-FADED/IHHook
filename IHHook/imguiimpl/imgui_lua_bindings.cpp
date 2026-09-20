@@ -1,12 +1,12 @@
 // tex slightly tweaked from imgui_lua_bindings fork since main repo hasn't been updated since imgui 1.60
 // https://github.com/ZhuRong-HomoStation/imgui_lua_bindings
-#include <deque>
-#include <imgui.h>
 #include <stdio.h>
+#include <imgui.h>
+#include <deque>
 // #include "imgui_lua_binding.h"//tex OFF not in repo?
-#include "lauxlib.h"
 #include "lua.h"
 #include "lualib.h"
+#include "lauxlib.h"
 // using namespace slua;//tex OFF no idea what this is
 //  THIS IS FOR LUA 5.3 although you can make a few changes for other versions
 
@@ -406,8 +406,8 @@ static void PushImguiEnums(lua_State* lState, const char* tableName)
 #define END_ENUM(name)                                                                                                                                         \
     }                                                                                                                                                          \
     lua_rawset(lState, -3);
-    // These defines are just redefining everything to nothing so
-    // we get only the enums.
+// These defines are just redefining everything to nothing so
+// we get only the enums.
 #undef IMGUI_FUNCTION
 #define IMGUI_FUNCTION(name)
 #undef IMGUI_FUNCTION_DRAW_LIST
