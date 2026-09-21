@@ -32,6 +32,7 @@ static void initialize()
         PPEB peb = (PPEB)__readgsqword(0x60);
         peb->BeingDebugged = false;
         peb->NtGlobalFlag &= ~0x70;
+        
 
         // dx11 anti-anti-hook
         constexpr const uint8_t bytes[]{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
